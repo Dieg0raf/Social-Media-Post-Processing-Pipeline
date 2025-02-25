@@ -26,7 +26,7 @@ public class Main {
         }
 
         String postId = "45";
-        String content = "This is a offensive1dynamically generated post.";
+        String content = "This is a offensive dynamically generated post.";
 
         // Dynamically build the JSON string using String.format() or concatenation
         String jsonBody = String.format("{"

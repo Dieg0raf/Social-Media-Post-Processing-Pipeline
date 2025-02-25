@@ -1,41 +1,44 @@
 package com.ecs160.hw3;
-
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.List;
 
 @RestController
 public class ModerationController {
-    // TODO: Change list (not sure what list e.g., txt file or in memory list)
-    private static final List<String> BAD_WORDS = List.of(
-            "badword1", "badword2", "curseword1", "offensive1", "explicit1"
+    private final ModerationHttpClient httpClientService = new ModerationHttpClient();
+    private static final String FAILED_KEYWORD = "FAILED";
+    private static final List<String> BANNED_WORDS = List.of(
+            "illegal",
+            "fraud",
+            "scam",
+            "exploit",
+            "dox",
+            "swatting",
+            "hack",
+            "crypto",
+            "bots"
     );
 
-    public static class MyRequest {
-        private final String postContent;
-        private final String postId;
-
-        public MyRequest(String postContent, String postId, int likes, String author) {
-            this.postContent = postContent;
-            this.postId = postId;
-        }
-
-        public String getPostContent() { return postContent; }
-        public String getPostId() { return postId; }
+    public record MyRequest(String postContent) {
     }
 
     @PostMapping("/moderate")
     public String moderate(@RequestBody MyRequest request) {
-        if (hasBadWords(request.getPostContent())) {
-            return "Post (" + request.getPostId() + ") content has bad words!";
+        String postContent = request.postContent();
+        if (hasBannedWords(postContent)) {
+            return FAILED_KEYWORD;
         }
-        return "Moving to next microservice";
+        String jsonBody = createJson(postContent);
+        return this.httpClientService.sendRequest(jsonBody);
     }
 
-    private boolean hasBadWords(String postContent) {
-        for(String badWord: ModerationController.BAD_WORDS) {
+    private String createJson(String postContent) {
+        return String.format("{" + "\"postContent\": \"%s\"" + "}", postContent);
+    }
+
+    private boolean hasBannedWords(String postContent) {
+        for(String badWord: ModerationController.BANNED_WORDS) {
             if (postContent.contains(badWord)) {
                 return true;
             }
