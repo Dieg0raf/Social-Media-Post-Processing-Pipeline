@@ -16,34 +16,25 @@ public class HashTagController {
     private static final String OLLAMA_URL = "http://localhost:11434";
     private static final String MODEL_NAME = "llama3.2";
 
-    public static class MyRequest {
-        private final String postContent;
-
-        public MyRequest(String postContent) {
-            this.postContent = postContent;
-        }
-
-        public String getPostContent() {
-            return postContent;
-        }
+    public record MyRequest(String postContent) {
     }
 
     @PostMapping("/hash-tag")
     public String hashTag(@RequestBody MyRequest request) {
         try {
             OllamaAPI ollamaAPI = new OllamaAPI(OLLAMA_URL);
-            String prompt = createPrompt(request.getPostContent());
+            String prompt = createPrompt(request.postContent());
             OllamaResult result = generateHashtag(ollamaAPI, prompt);
 
-            return extractHashtag(result.getResponse());
+            return extractHashtag(result.getResponse()); // return response from LLM or default hashtag
         } catch (OllamaBaseException | IOException | InterruptedException e) {
             logError(e);
-            return DEFAULT_HASHTAG;
+            return DEFAULT_HASHTAG; // return default hashtag if LLM fails
         }
     }
 
     private String createPrompt(String postContent) {
-        return "Please generate a hashtag for this social media post and just return one hashtag: " + postContent;
+        return "Generate exactly one hashtag for this post: " + postContent + ". Respond with only the hashtag and nothing else.";
     }
 
     private OllamaResult generateHashtag(OllamaAPI ollamaAPI, String prompt)
@@ -52,7 +43,7 @@ public class HashTagController {
     }
 
     private String extractHashtag(String response) {
-        return response.contains("#") ? response : DEFAULT_HASHTAG;
+        return response.matches("#\\w+") ? response : DEFAULT_HASHTAG;
     }
 
     private void logError(Exception e) {

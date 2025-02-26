@@ -1,7 +1,5 @@
 package com.ecs160.hw3;
 
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.net.URI;
 
@@ -10,19 +8,29 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 
-@Service
-public class ModerationHttpClient {
-    private static final HttpClient client = HttpClient.newHttpClient();
-    private static final String DEFAULT_HASHTAG = "#bskypost";
-    private static final String HASHTAG_SERVICE_URL = "http://localhost:30002/hash-tag";
+public class MainHttpClient {
+    private static HttpClient client;
+    private static final String MODERATION_SERVICE_URL = "http://localhost:30001/moderate";
+    private static MainHttpClient mainHttpClient = null;
+
+    private MainHttpClient () {
+        client = HttpClient.newHttpClient();
+    }
+
+    public static MainHttpClient getMainHttpClient() {
+        if (mainHttpClient == null) {
+            mainHttpClient = new MainHttpClient();
+        }
+        return mainHttpClient;
+    }
 
     public String sendRequest(String jsonBody) {
         try {
             HttpRequest serviceRequest = createHttpRequest(jsonBody);
             HttpResponse<String> response = sendRequest(serviceRequest);
-            return response.body(); // return response from hashtag service
+            return response.body(); // return response moderation service
         } catch (IOException|InterruptedException e) {
-            return DEFAULT_HASHTAG; // return default if http client fails
+            return "Error has occurred for HTTP Client: " + e;
         }
     }
 
@@ -32,7 +40,7 @@ public class ModerationHttpClient {
 
     private HttpRequest createHttpRequest(String jsonBody) {
         return HttpRequest.newBuilder()
-                .uri(URI.create(HASHTAG_SERVICE_URL))
+                .uri(URI.create(MODERATION_SERVICE_URL))
                 .timeout(Duration.ofMinutes(1))
                 .header("Content-Type", "application/json")
                 .POST(HttpRequest.BodyPublishers.ofString(jsonBody))

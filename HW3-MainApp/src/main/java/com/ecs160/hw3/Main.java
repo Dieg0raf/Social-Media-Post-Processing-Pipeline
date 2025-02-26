@@ -1,50 +1,42 @@
 package com.ecs160.hw3;
-
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
-import java.util.List;
+import java.util.*;
 
 public class Main {
-    public static void main(String[] args) throws IOException, InterruptedException {
+    private static final JsonUtils jsonUtil = new JsonUtils();
+    private static final MainHttpClient httpClientService = MainHttpClient.getMainHttpClient();
+    private static final PrintFormatter formatter = new PrintFormatter();
+    private static final PostProcessor processor = new PostProcessor(jsonUtil, httpClientService, formatter);
+
+    public static void main(String[] args){
         Main driver = new Main();
         driver.run(args);
     }
 
-    private void run(String[] args) throws IOException, InterruptedException {
+    private void run(String[] args) {
         String filePath = getFilePathFromArgs(args);
-        JsonParser parser = new JsonParser();
-        List<Post> allPosts = parser.parseJson(filePath);
-        for (Post post: allPosts) {
-            System.out.println("ThreadPost: " + post.getParentPostId());
-            System.out.println("Amount of likes " + post.getLikeCount());
-            System.out.println("Amount of replies: " + post.getRepliesSize());
-            System.out.println();
+        List<Post> allPosts = jsonUtil.deserializeFromJson(filePath);
+        PriorityQueue<Post> topTenPosts = createTopTenPosts(allPosts);
+
+        try {
+            processor.processTopPosts(topTenPosts);
+        } catch (IOException | InterruptedException e) {
+            System.out.println("Error occurred when processing Top ten posts: " + e);
         }
+    }
 
-        String postId = "45";
-        String content = "This is a offensive dynamically generated post.";
-
-        // Dynamically build the JSON string using String.format() or concatenation
-        String jsonBody = String.format("{"
-                + "\"postContent\": \"%s\","
-                + "\"postId\": \"%s\""
-                + "}", content, postId);
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create("http://localhost:30001/moderate"))
-                .timeout(Duration.ofMinutes(1))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                .build();
-
-        HttpClient client = HttpClient.newHttpClient();
-        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        System.out.println("Response: " + response.body());
+    private static PriorityQueue<Post> createTopTenPosts(List<Post> allPosts) {
+        PriorityQueue<Post> topTenPosts = new PriorityQueue<>(Comparator.comparingInt(Post::getLikeCount));
+        for (Post post: allPosts) {
+            if (topTenPosts.size() < 10) {
+                topTenPosts.add(post);
+            }
+            else if (post.getLikeCount() > topTenPosts.peek().getLikeCount()) {
+                topTenPosts.poll();
+                topTenPosts.add(post);
+            }
+        }
+        return topTenPosts;
     }
 
     private String getFilePathFromArgs(String[] args) {

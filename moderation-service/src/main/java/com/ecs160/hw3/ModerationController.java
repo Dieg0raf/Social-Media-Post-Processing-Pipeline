@@ -2,12 +2,17 @@ package com.ecs160.hw3;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import com.google.gson.Gson;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class ModerationController {
     private final ModerationHttpClient httpClientService = new ModerationHttpClient();
     private static final String FAILED_KEYWORD = "FAILED";
+    private static final Gson gson = new Gson();
     private static final List<String> BANNED_WORDS = List.of(
             "illegal",
             "fraud",
@@ -34,7 +39,9 @@ public class ModerationController {
     }
 
     private String createJson(String postContent) {
-        return String.format("{" + "\"postContent\": \"%s\"" + "}", postContent);
+        Map<String, String> jsonMap = new HashMap<>();
+        jsonMap.put("postContent", postContent);
+        return gson.toJson(jsonMap);
     }
 
     private boolean hasBannedWords(String postContent) {
