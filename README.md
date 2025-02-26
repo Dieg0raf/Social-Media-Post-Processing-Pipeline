@@ -9,7 +9,6 @@ This project implements a microservice-based pipeline for processing social medi
 The pipeline processes the top 10 most-liked posts and their replies from the provided dataset.
 
 ## Architecture
-![Pipeline Architecture](https://placeholder.com/wp-content/uploads/2018/10/placeholder.com-logo1.png)
 
 The system follows a pipeline microservice architecture:
 - Client sends requests to the Moderation Service
