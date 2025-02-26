@@ -67,13 +67,13 @@ mvn clean install
 
 ## Running the Application
 
-1. **Start the Hashtag Service** (on port 30001):
+1. **Start the Hashtag Service** (on port 30002):
    ```bash
    cd hashtag-service
    mvn spring-boot:run
    ```
 
-2. **Start the Moderation Service** (on port 30000):
+2. **Start the Moderation Service** (on port 30001):
    ```bash
    cd moderation-service
    mvn spring-boot:run
@@ -92,10 +92,10 @@ Each service can be tested with curl:
 
 ```bash
 # Test Moderation Service
-curl -X POST http://localhost:30000/moderate -H "Content-type: application/json" -d "{\"postContent\": \"Hello, Spring Boot!\"}"
+curl -X POST http://localhost:30001/moderate -H "Content-type: application/json" -d "{\"postContent\": \"Hello, Spring Boot!\"}"
 
 # Test Hashtag Service
-curl -X POST http://localhost:30001/hashtag -H "Content-type: application/json" -d "{\"postContent\": \"I love hiking in the mountains on weekends.\"}"
+curl -X POST http://localhost:30002/hashtag -H "Content-type: application/json" -d "{\"postContent\": \"I love hiking in the mountains on weekends.\"}"
 ```
 
 ### Running Unit Tests
