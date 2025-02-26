@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public class JsonUtils {
-    static final private JsonParser parser = new JsonParser();
+    static final private JsonParser parser = JsonParser.getJsonParser();
     static final private Gson gson = new Gson();
 
     public List<Post> deserializeFromJson(String filePath) {

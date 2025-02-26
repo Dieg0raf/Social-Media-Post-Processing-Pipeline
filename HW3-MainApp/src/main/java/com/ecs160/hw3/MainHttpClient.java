@@ -9,10 +9,11 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 
 public class MainHttpClient {
-    private static HttpClient client;
     private static final String MODERATION_SERVICE_URL = "http://localhost:30001/moderate";
-    private static MainHttpClient mainHttpClient = null;
+    private static HttpClient client;
+    private static MainHttpClient mainHttpClient;
 
+    // using singleton design pattern from lecture (seems like it would work for this case)
     private MainHttpClient () {
         client = HttpClient.newHttpClient();
     }

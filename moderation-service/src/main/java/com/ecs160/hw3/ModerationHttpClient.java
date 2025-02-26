@@ -12,9 +12,21 @@ import java.time.Duration;
 
 @Service
 public class ModerationHttpClient {
-    private static final HttpClient client = HttpClient.newHttpClient();
     private static final String DEFAULT_HASHTAG = "#bskypost";
     private static final String HASHTAG_SERVICE_URL = "http://localhost:30002/hash-tag";
+    private static ModerationHttpClient mainHttpClient = null;
+    private static HttpClient client = null;
+
+    private ModerationHttpClient () {
+        client = HttpClient.newHttpClient();
+    }
+
+    public static ModerationHttpClient getMainHttpClient() {
+        if (mainHttpClient == null) {
+            mainHttpClient = new ModerationHttpClient();
+        }
+        return mainHttpClient;
+    }
 
     public String sendRequest(String jsonBody) {
         try {

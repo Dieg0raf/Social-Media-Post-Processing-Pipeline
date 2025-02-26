@@ -13,6 +13,17 @@ import java.util.List;
 import java.util.Map;
 
 public class JsonParser {
+    private static JsonParser parser;
+
+    private JsonParser () {}
+
+    public static JsonParser getJsonParser() {
+        if (parser == null) {
+            parser = new JsonParser();
+        }
+        return parser;
+    }
+
     public List<Post> parseJson(String filePath) {
         List<Post> posts = new ArrayList<>();
         try {
@@ -103,15 +114,12 @@ public class JsonParser {
                 Integer.parseInt(postData.get("likeCount"))
         );
 
-        // Recursively parse replies
-//        parseReplies(replies, threadPost, posts, postData.get("postId"));
         parseReplies(replies, threadPost, posts, threadPost.getPostId());
         posts.add(threadPost);
     }
 
     private static void processStandalonePost(Map<String, String> postData, List<Post> posts) {
         Post standalonePost = new Post(
-//                postData.get("postId"),
                 IdGenerator.generateUniqueId(),
                 -1,
                 postData.get("createdAt"),
