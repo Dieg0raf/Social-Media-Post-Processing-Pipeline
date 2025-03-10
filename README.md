@@ -110,9 +110,19 @@ curl -X POST http://localhost:30002/hash-tag -H "Content-type: application/json"
 
 ### Running Unit Tests
 
-```bash
-mvn test
-```
+1. **Unit Test for Hashtag Service**:
+
+   ```bash
+   cd hashtag-service
+   mvn clean test
+   ```
+
+2. **Start the Moderation Service**:
+
+   ```bash
+   cd moderation-service
+   mvn clean test
+   ```
 
 ## Output Format
 
