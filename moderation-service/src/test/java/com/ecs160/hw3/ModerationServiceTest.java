@@ -39,17 +39,14 @@ public class ModerationServiceTest {
 
 	@Test
 	public void testModerationFail() throws Exception {
-		// Mock the controller to return FAILED for content with banned words
 		doReturn("FAILED").when(moderationController).moderate(any());
 
-		// Test with content containing a banned word
 		mockMvc.perform(post("/moderate")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("{\"postContent\": \"This post contains illegal content\"}"))
 				.andExpect(status().isOk())
 				.andExpect(content().string("FAILED"));
 
-		// Verify the controller was called
 		verify(moderationController, times(1)).moderate(any());
 	}
 
@@ -71,17 +68,14 @@ public class ModerationServiceTest {
 
 	@Test
 	public void testHashtagServiceUnavailable() throws Exception {
-		// Mock the controller to return a specific response
 		doReturn("#bskypost").when(moderationController).moderate(any());
 
-		// Test the controller with safe content
 		mockMvc.perform(post("/moderate")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content("{\"postContent\": \"This is a safe post\"}"))
 				.andExpect(status().isOk())
 				.andExpect(content().string("#bskypost"));
 
-		// Verify the controller was called
 		verify(moderationController, times(1)).moderate(any());
 	}
 }
